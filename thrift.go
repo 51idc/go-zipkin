@@ -2,7 +2,7 @@ package zipkin
 
 import (
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/elodina/go-zipkin/gen-go/zipkincore"
+	"github.com/51idc/go-zipkin/gen-go/zipkincore"
 )
 
 func SerializeSpan(s *zipkincore.Span) ([]byte, error) {

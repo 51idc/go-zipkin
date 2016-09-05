@@ -352,6 +352,10 @@ func (s *Span) GetAvroTraceInfo() *avro.GenericRecord {
 }
 
 func (s *Span) Collect() error {
+	if s.collector == nil{
+		panic("[Zipkin] Collector not configured")
+	}
+
 	log.Debugf("[Zipkin] Sending spans: %b", s.sampled)
 	if !s.sampled {
 		return nil

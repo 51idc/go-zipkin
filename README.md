@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/elodina/go-zipkin.svg?branch=master)](https://travis-ci.org/elodina/go-zipkin)
+[![Build Status](https://travis-ci.org/51idc/go-zipkin.svg?branch=master)](https://travis-ci.org/51idc/go-zipkin)
 
 # Zipkin library for Go
 
@@ -12,26 +12,28 @@ Kafka is used as a transport to transfer the completed spans to Zipkin collector
 ```go
 // ...
 import (
-    "github.com/elodina/go-zipkin"
+    "github.com/51idc/go-zipkin"
 )
 
-rate := 10 // tracing rate 1 of 10
+// tracing rate 1 of 10
+// 1 is 100%
+rate := 1
 brokerAddr := []string{"master:5000"} // Kafka broker endpoint
 
-producer, err := zipkin.DefaultProducer(brokerAddr) if err != nil {
-//...
-}
-
-tracer := zipkin.NewTracer("ServiceName", rate, producer, zipkin.LocalNetworkIP(), zipkin.DefaultPort(), zipkin.DefaultTopic())
+tracer := NewTracer(&Option{
+		ServiceName: "Zipkin Test",
+		Rate:        rate,
+		BrokerList:  brokerAddr,
+		IP:          zipkin.LocalNetworkIP(),
+		Topic:       zipkin.DefaultTopic(),
+})
 
 //...
 span := tracer.NewSpan("span_name")
 span.ServerReceive()
+
 // do work here
+
 span.ServerSendAndCollect()
 //...
 ```
-
-## Examples
-
-You may see the complete end-to-end example here: https://github.com/aShevc/go-zipkin-sample 

@@ -10,30 +10,33 @@ Kafka is used as a transport to transfer the completed spans to Zipkin collector
 ## Quickstart
  
 ```go
-// ...
+package main
+
 import (
-    "github.com/51idc/go-zipkin"
+	"github.com/51idc/go-zipkin"
 )
 
-// tracing rate 1 of 10
-// 1 is 100%
-rate := 1
-brokerAddr := []string{"master:5000"} // Kafka broker endpoint
+func main() {
 
-tracer := NewTracer(&Option{
+	// tracing rate 1 of 10
+	// 1 is 100%
+	rate := 1
+	brokerAddr := []string{"127.0.0.1:9092"} // Kafka broker endpoint
+
+	tracer := zipkin.NewTracer(&zipkin.Option{
 		ServiceName: "Zipkin Test",
 		Rate:        rate,
 		BrokerList:  brokerAddr,
 		IP:          zipkin.LocalNetworkIP(),
 		Topic:       zipkin.DefaultTopic(),
-})
+	})
 
-//...
-span := tracer.NewSpan("span_name")
-span.ServerReceive()
+	span := tracer.NewSpan("span_name")
+	span.ServerReceive()
 
-// do work here
+	// do work here
 
-span.ServerSendAndCollect()
-//...
+	span.ServerSendAndCollect()
+}
+
 ```

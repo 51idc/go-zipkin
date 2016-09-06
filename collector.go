@@ -1,21 +1,41 @@
 package zipkin
 
 import (
+	"sync"
+
 	"github.com/Shopify/sarama"
-	log "github.com/Sirupsen/logrus"
 )
 
 type Collector interface {
 	Collect([]byte)
 }
 
-type KafkaCollector struct {
+type kafkaCollector struct {
+	sync.Mutex
 	producer sarama.SyncProducer
 	topic    string
+	msgCh    chan *sarama.ProducerMessage
 }
 
-func (kc *KafkaCollector) Collect(bytes []byte) {
-	log.Debugf("[Zipkin] Collecting bytes: %v", bytes)
-	kc.producer.SendMessage(&sarama.ProducerMessage{Topic: kc.topic, Value: sarama.ByteEncoder(bytes)})
-	log.Debugf("[Zipkin] Bytes collected")
+func NewKafkaCollector(topic string, producer sarama.SyncProducer) *kafkaCollector {
+	c := &kafkaCollector{
+		producer: producer,
+		topic:    topic,
+		msgCh:    make(chan *sarama.ProducerMessage, 10),
+	}
+
+	go func() {
+		for m := range c.msgCh {
+			c.producer.SendMessage(m)
+		}
+	}()
+
+	return c
+}
+
+func (c *kafkaCollector) Collect(bytes []byte) {
+	c.msgCh <- &sarama.ProducerMessage{
+		Topic: c.topic,
+		Value: sarama.ByteEncoder(bytes),
+	}
 }

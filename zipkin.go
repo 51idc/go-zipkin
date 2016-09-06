@@ -45,7 +45,7 @@ func NewTracer(opt *Option) *Tracer {
 	collector := opt.Collector
 	if collector == nil {
 		if producer, err := DefaultProducer(opt.BrokerList); err == nil {
-			collector = &KafkaCollector{producer: producer, topic: opt.Topic}
+			collector = NewKafkaCollector(opt.Topic, producer)
 		}
 	}
 
